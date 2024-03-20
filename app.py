@@ -46,6 +46,11 @@ def index():
 def get_name(name: str):
     return {'Welcome': f'{name}'}
 
+
+#The loan object contains a due date in date format and their will be a status if its repaid or not ,
+#if the due date has very recently passed away (and its not repaid), enter 1 in feature 1 
+#and if it has passed a long ago enter 2 in the feature 
+
 @app.post('/predict')
 def predict(input_data: ModelInput):
     data = input_data.dict()
@@ -67,7 +72,7 @@ def pay_loan(loan_status: LoanStatus):
     else:
         return {'error': 'Loan ID not found'}
     
-    
+
 @app.post('/label')
 def label(input_data: ModelInput):
     data = input_data.dict()

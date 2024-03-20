@@ -1,0 +1,7 @@
+ uvicorn
+ fastapi 
+ pydantic 
+ pickle
+ sklearn
+ lightgbm
+ joblib
