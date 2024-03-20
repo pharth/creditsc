@@ -7,27 +7,27 @@ import uvicorn
 
 app = FastAPI()
 
-# Load the models
+
 with open('model_linear.pkl', 'rb') as file:
     model_linear = joblib.load(file)
 
 with open('lgb_classifier.pkl', 'rb') as file:
     lgb_classifier = joblib.load(file)
 
-# In-memory 'databases' for loan statuses
+
 loan_status_db = {}
 
-# Pydantic model for input data
+
 class ModelInput(BaseModel):
     feature2: float
     feature3: float
     loan_id: str  
 
-# Pydantic model for loan status including due date
+
 class LoanStatus(BaseModel):
     loan_id: str
     due_date: datetime
-    status: str  # Can be 'unpaid' or 'paid'
+    status: str  
 
 @app.get('/')
 def index():
@@ -44,18 +44,18 @@ def predict(loan_status: LoanStatus):
     status = data['status']
     due_date = data['due_date']
 
-    # Determine how long ago the due date passed
+    
     days_since_due = (datetime.now() - due_date).days
 
-    # Set feature1 based on whether the due date has very recently passed away or a long time ago
-    # and the loan has not been repaid
+    
+    
     if status == 'unpaid':
         if days_since_due <= 30:
-            feature1 = 1  # Due date has very recently passed and loan is unpaid
+            feature1 = 1  
         else:
-            feature1 = 2  # Due date has passed a long time ago and loan is unpaid
+            feature1 = 2  
     else:
-        feature1 = 0  # Loan is paid
+        feature1 = 0  
 
     prediction = model_linear.predict([[feature1, loan_status.feature2, loan_status.feature3]])
     loan_status_db[loan_id] = status
@@ -69,7 +69,7 @@ def predict(loan_status: LoanStatus):
 @app.post('/pay_loan')
 def pay_loan(loan_status: LoanStatus):
     loan_id = loan_status.loan_id
-    # Update the status of the loan to 'paid'
+    
     if loan_id in loan_status_db:
         loan_status_db[loan_id] = 'paid'
         return {'loan_id': loan_id, 'status': 'paid'}
