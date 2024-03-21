@@ -13,12 +13,10 @@ with open('model_linear.pkl', 'rb') as file:
 with open('lgb_classifier.pkl', 'rb') as file:
     lgb_classifier = joblib.load(file)
 
-
 class ModelInput(BaseModel):
     feature2: float
     feature3: float
     loan_id: str  
-
 
 class LoanStatus(BaseModel):
     loan_id: str
@@ -76,8 +74,7 @@ def pay_loan(loan_status: LoanStatus):
     loan_id = loan_status.loan_id
     
     with get_db() as cursor:
-        cursor.execute("SELECT * FROM LoanUser WHERE loanID = ?", (loan_id,))
-        row = cursor.fetchOne()
+        row = cursor.execute("SELECT * FROM LoanUser WHERE loanID = ?", (loan_id,)).fetchone()
         if row is None:
             raise HTTPException(status_code=404, detail='Loan ID not found')
         cursor.execute("UPDATE LoanUser SET status = ? WHERE loanID = ?", ("paid", loan_id))
@@ -88,8 +85,7 @@ def label(input_data: ModelInput):
     data = input_data.dict()
     loan_id = data['loan_id']
     with get_db() as cursor:
-        cursor.execute("SELECT feature1 FROM LoanUser WHERE loanID = ?", (loan_id,))
-        row = cursor.fetchone()
+        row = cursor.execute("SELECT feature1 FROM LoanUser WHERE loanID = ?", (loan_id,)).fetchone()
         if row is not None:
             feature1 = row[0]
         else:
